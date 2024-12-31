@@ -1,0 +1,86 @@
+{
+  "fr": {
+    "page-title": "REECap - Transcription & Synthèse",
+    "language": "Français",
+    "theme-toggle": "Mode Sombre",
+    "title": "REECap - Transcription & Synthèse",
+
+    "import-file": "Importer un fichier",
+    "drop-file": "Glissez-déposez un fichier ici ou cliquez pour importer",
+    "supported-formats": "Formats pris en charge : MP3, WAV, M4A, TXT",
+    "upload-in-progress": "Téléchargement en cours...",
+
+    "cost-label": "Coût estimé :",
+    "cost-value": "0",
+    "cost-currency-symbol": "$",
+
+    "processing-status-text": "Traitement en cours...",
+    "estimated-time-label": "Temps estimé :",
+    "estimated-time-value": "2-5 minutes",
+
+    "transcription-label": "Transcription",
+    "download-transcription": "Télécharger la transcription (.txt)",
+
+    "meeting-details": "Détails de la réunion",
+    "objective-label": "Objectif de la réunion",
+    "objective.placeholder": "Entrez l'objectif de la réunion",
+    "date-label": "Date",
+    "location-label": "Lieu",
+    "location.placeholder": "Entrez le lieu de la réunion",
+    "participants-label": "Participants",
+    "participants.placeholder": "Liste des participants",
+    "additional-info-label": "Informations supplémentaires",
+    "additional-info.placeholder": "Fournissez des précisions supplémentaires ici",
+
+    "generate-summary": "Générer...",
+
+    "radio-synthesis": "Synthèse",
+    "radio-detailed-pv": "PV détaillé",
+    "radio-exec-summary": "Résumé ultra-concis (Executive summary)",
+
+    "results": "Résultats",
+    "download-summary": "Télécharger le document (.md)"
+  },
+  "en": {
+    "page-title": "REECap - Transcription & Synthesis",
+    "language": "English",
+    "theme-toggle": "Dark Mode",
+    "title": "REECap - Transcription & Synthesis",
+
+    "import-file": "Import a file",
+    "drop-file": "Drag and drop a file here or click to upload",
+    "supported-formats": "Supported formats: MP3, WAV, M4A, TXT",
+    "upload-in-progress": "Uploading...",
+
+    "cost-label": "Estimated cost:",
+    "cost-value": "0",
+    "cost-currency-symbol": "$",
+
+    "processing-status-text": "Processing...",
+    "estimated-time-label": "Estimated time:",
+    "estimated-time-value": "2-5 minutes",
+
+    "transcription-label": "Transcription",
+    "download-transcription": "Download the transcription (.txt)",
+
+    "meeting-details": "Meeting details",
+    "objective-label": "Meeting objective",
+    "objective.placeholder": "Enter the meeting objective",
+    "date-label": "Date",
+    "location-label": "Location",
+    "location.placeholder": "Enter the meeting location",
+    "participants-label": "Participants",
+    "participants.placeholder": "List of participants",
+    "additional-info-label": "Additional information",
+    "additional-info.placeholder": "Provide additional details here",
+
+    "generate-summary": "Generate...",
+
+    "radio-synthesis": "Summary",
+    "radio-detailed-pv": "Detailed minutes",
+    "radio-exec-summary": "Ultra-concise summary (Executive summary)",
+
+    "results": "Results",
+    "download-summary": "Download the document (.md)"
+  }
+}

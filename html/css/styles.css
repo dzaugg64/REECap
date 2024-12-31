@@ -1,0 +1,193 @@
+/* Transitions globales */
+* {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* Base styles for body and content */
+body {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Card container styles */
+.card-container {
+    transition: all 0.2s ease-in-out;
+}
+
+/* File upload area styles */
+#file-upload-area {
+    border: 2px dashed #4a5568;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+}
+
+#file-upload-area:hover {
+    border-color: #3182ce;
+}
+
+#file-upload-area.dragover {
+    background-color: #f7fafc;
+    border-color: #3182ce;
+}
+
+/* Output areas styling */
+#transcription-output,
+#summary-output {
+    height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 10px;
+    border-radius: 4px;
+    resize: none;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Cost display styling */
+#cost-display {
+    text-align: right;
+    margin-top: 1rem;
+    transition: color 0.2s ease-in-out;
+}
+
+/* Button styles */
+button {
+    transition: all 0.2s ease-in-out;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Theme toggle button */
+#theme-toggle {
+    transition: all 0.2s ease-in-out;
+}
+
+.bg-gray-100 #theme-toggle {
+    background-color: #4a5568;
+    color: white;
+}
+
+.bg-gray-900 #theme-toggle {
+    background-color: #f7fafc;
+    color: #1a202c;
+}
+
+/* Processing feedback styles */
+#processing-feedback {
+    transition: all 0.2s ease-in-out;
+}
+
+.bg-gray-900 #processing-feedback {
+    background-color: #2d3748;
+    color: #f7fafc;
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    transition: transform 0.2s ease-in-out;
+}
+
+.bg-gray-900 .notification {
+    background-color: #2d3748;
+    color: #f7fafc;
+}
+
+/* Progress bar styles */
+.progress-bar {
+    transition: width 0.2s ease-in-out;
+}
+
+/* Language selector styles */
+.bg-gray-900 #language-selector {
+    background-color: #2d3748;
+    color: #f7fafc;
+    border-color: #4a5568;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+.bg-gray-900 ::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+/* Hover effects */
+.bg-gray-100 #file-upload-area:hover {
+    border-color: #3182ce;
+    background-color: #f7fafc;
+}
+
+.bg-gray-900 #file-upload-area:hover {
+    border-color: #63b3ed;
+    background-color: #2d3748;
+}
+
+/* Support text colors */
+.bg-gray-100 .text-gray-500 {
+    color: #718096;
+}
+
+.bg-gray-900 .text-gray-500 {
+    color: #a0aec0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+    .sm\:flex-row {
+        flex-direction: column;
+    }
+
+    .sm\:w-1\/4,
+    .sm\:w-3\/4 {
+        width: 100%;
+    }
+
+    .sm\:space-x-4 > * + * {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+}
+/* Formatage des tableaux */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    font-size: 14px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}

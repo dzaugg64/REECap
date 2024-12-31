@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h2>WebSocket Test</h2>
+    <div id="messages"></div>
+    <script>
+        const ws = new WebSocket('ws://127.0.0.1:5010/ws');
+        
+        ws.onopen = function() {
+            console.log('Connected to WebSocket');
+            document.getElementById('messages').innerHTML += '<p>Connected!</p>';
+            ws.send('Hello Server!');
+        };
+        
+        ws.onmessage = function(e) {
+            console.log('Received:', e.data);
+            document.getElementById('messages').innerHTML += '<p>' + e.data + '</p>';
+        };
+        
+        ws.onerror = function(e) {
+            console.error('WebSocket error:', e);
+            document.getElementById('messages').innerHTML += '<p>Error: ' + e + '</p>';
+        };
+    </script>
+</body>
+</html>
