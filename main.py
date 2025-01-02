@@ -1,10 +1,12 @@
+# TODO: Créer une option "partager" pour IOS
+
 import sys
 if "pydevd" in sys.modules:
     DEBUG = True
 else:
     DEBUG = False
 
-NO_OPENAI = True
+NO_OPENAI = False # Si vrai, Empêche la connexion à OPENAI
 
 import os
 import uuid
@@ -315,7 +317,7 @@ def summarize_with_meeting_synthetiser(transcription_text, assistant_id):
     print("Synthèse en cours...")
     try:
         thread = openai.beta.threads.create()
-        message = openai.beta.threads.messages.create(
+        openai.beta.threads.messages.create(
             thread_id=thread.id, role="user", content=transcription_text
         )
         run = openai.beta.threads.runs.create_and_poll(
