@@ -26,6 +26,8 @@ export function initializeWebSocket(websocketUrl) {
                     updateProcessingFeedback(data.message, data.subtitle); // Gère d'autres messages
                 } else if (data.type === 'progress') {
                     updateProgressBar(data.percentage); // Gère d'autres messages
+                } else if (data.type === 'close') {
+                    socket.close();
                 } else {
                     console.warn('Type de message inconnu :', data);
                 }

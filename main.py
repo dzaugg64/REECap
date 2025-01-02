@@ -4,7 +4,7 @@ if "pydevd" in sys.modules:
 else:
     DEBUG = False
 
-DEBUG = True
+NO_OPENAI = True
 
 import os
 import uuid
@@ -17,7 +17,11 @@ from flask_cors import CORS
 from flask_sock import Sock
 
 from AudioCleaner import AudioCleaner
-from Feedbacks import emit_feedback, update_progressbar, clients
+from Feedbacks import emit_feedback, update_progressbar, clients, close_websocket
+
+if DEBUG:
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 
 # Lecture de la configuration
 config = configparser.ConfigParser()
@@ -122,7 +126,7 @@ def process_file():
             update_progressbar(client_id, "40")
 
             # Transcription des segments
-            if DEBUG:
+            if DEBUG or NO_OPENAI:
                 # Use transcription from fake folder in debug mode
                 fake_transcription_path = os.path.join(FAKE_FOLDER, "transcription.txt")
                 with open(fake_transcription_path, "r") as fake_file:
@@ -155,7 +159,7 @@ def process_file():
 
         # Synthèse de la transcription
         emit_feedback(client_id, "Synthèse en cours...")
-        if DEBUG:
+        if DEBUG or NO_OPENAI:
             fake_summary_path = os.path.join(FAKE_FOLDER, "summary.md")
             with open(fake_summary_path, "r") as fake_file:
                 summary = fake_file.read()
@@ -169,11 +173,12 @@ def process_file():
             f.write(summary)
         print(f"Synthèse sauvegardée : {summary_path}")
 
-        # Nettoyage du répertoire AUDIO
+        # Nettoyage du répertoire AUDIO et fermeture du Websocket
         cleanup_audio()
+        close_websocket(client_id)
 
         # Calcul du coût
-        if DEBUG:
+        if DEBUG or NO_OPENAI:
             cost = 0.2345 # Montant aléatoire
         else:
             in_cost, out_cost = MINI_COST
@@ -341,5 +346,9 @@ def cleanup_audio():
             print(f"Erreur lors du nettoyage {file_path}: {e}")
 
 if __name__ == "__main__":
+    if DEBUG:
+        gunicorn_logger = logging.getLogger('gunicorn.error')
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
     print("Lancement du serveur Flask...")
     app.run(host='127.0.0.1', port=5000, debug=DEBUG, use_reloader=False)
