@@ -6,7 +6,7 @@ if "pydevd" in sys.modules:
 else:
     DEBUG = False
 
-NO_OPENAI = False # Si vrai, Empêche la connexion à OPENAI
+NO_OPENAI = True # Si vrai, Empêche la connexion à OPENAI
 
 import os
 import uuid

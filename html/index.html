@@ -3,47 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Ajout d’un id pour le texte du <title>, si vous souhaitez aussi le changer dynamiquement -->
   <title id="page-title">REECap - Transcription & Synthèse</title>
 
   <script src="https://cdn.jsdelivr.net/npm/markdown-it/dist/markdown-it.min.js"></script>
-  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
   <link rel="stylesheet" href="css/tailwind.min.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/markdown.css">
+  <link rel="stylesheet" href="css/dark-light.css">
 </head>
 <body class="bg-gray-100 text-gray-900" id="theme">
   <div class="max-w-4xl mx-auto p-6">
     <!-- Top Menu -->
     <div class="flex justify-between items-center mb-4">
-      <!-- On remplace le texte “Français” par une <option> pour y mettre un id -->
       <select id="language-selector" class="p-2 border rounded">
         <option id="lang-fr" value="fr" selected>Français</option>
       </select>
-
-      <!-- Le bouton possède déjà un id, on s’en sert pour changer le texte “Mode Sombre” -->
       <button id="theme-toggle" class="p-2 border rounded">Mode Sombre</button>
     </div>
 
-    <!-- Titre principal (id déjà existant) -->
     <h1 id="title" class="text-3xl font-bold mb-6">REECap - Transcription & Synthèse</h1>
 
     <!-- File Upload and Transcription Display Section -->
     <div class="flex flex-col sm:flex-row sm:space-x-4 mb-6">
       <div class="card-container bg-white p-6 rounded-lg shadow-md sm:w-1/4">
         <h2 id="import-file" class="text-xl font-bold mb-4">Importer un fichier</h2>
-        <div id="file-upload-area" class="border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer transition-all duration-200 hover:border-blue-500">
+        <div id="file-upload-area" class="border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer">
           <p id="drop-file" class="font-medium">Glissez-déposez un fichier ici ou cliquez pour importer</p>
           <p id="supported-formats" class="text-sm text-gray-500 mt-2">Formats pris en charge : MP3, WAV, M4A, TXT</p>
-          <div class="upload-overlay hidden absolute inset-0 bg-gray-900 bg-opacity-50 rounded-lg flex items-center justify-center">
+          <div class="upload-overlay hidden absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
             <div id="upload-window" class="text-white text-center">
               <svg class="animate-spin h-8 w-8 mx-auto mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <!-- Ajout d’un id pour ce texte -->
               <!-- TODO: Activer cette option pendant le téléchargement -->
               <span id="upload-in-progress">Téléchargement en cours...</span>
             </div>
@@ -63,16 +55,12 @@
           <div class="flex items-center space-x-2">
             <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <!-- Ajout d’un id pour ce texte -->
-            <span id="processing-status-text" class="text-blue-700 font-medium processing-status">Téléchargement en cours...</span>
+            <span id="processing-status-text" class="text-blue-700 font-medium">Traitement en cours...</span>
           </div>
           <div class="mt-2">
             <div class="text-sm text-blue-600">
-              <!-- Ajout d’un id pour “Temps estimé :” -->
               <span id="processing-status-subtext"></span>
             </div>
             <div class="mt-1 h-2 bg-blue-200 rounded-full">
@@ -85,8 +73,8 @@
       <div class="card-container bg-white p-6 rounded-lg shadow-md sm:w-3/4">
         <h2 id="transcription-label" class="text-xl font-bold mb-4">Transcription</h2>
         <pre id="transcription-output" class="bg-gray-100 p-4 rounded overflow-x-auto"></pre>
-        <button id="download-transcription" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 hidden">
-          Télécharger la transcription (.txt)
+        <button id="download-transcription" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            Télécharger la transcription
         </button>
       </div>
     </div>
@@ -97,40 +85,33 @@
       <form id="context-form" class="space-y-4">
         <div>
           <label for="objective" class="block text-sm font-medium" id="objective-label">Objectif de la réunion</label>
-          <input type="text" id="objective" name="objective" placeholder="Entrez l'objectif de la réunion"
-                 class="mt-1 p-2 w-full rounded border">
+          <input type="text" id="objective" name="objective" placeholder="Entrez l'objectif de la réunion" class="mt-1 p-2 w-full rounded border">
         </div>
         <div class="flex flex-col sm:flex-row sm:space-x-4">
           <div class="flex-1">
             <label for="date" class="block text-sm font-medium" id="date-label">Date</label>
-            <input type="date" id="date" name="date"
-                   class="mt-1 p-2 w-full rounded border">
+            <input type="date" id="date" name="date" class="mt-1 p-2 w-full rounded border">
           </div>
           <div class="flex-1">
             <label for="location" class="block text-sm font-medium" id="location-label">Lieu</label>
-            <input type="text" id="location" name="location" placeholder="Entrez le lieu de la réunion"
-                   class="mt-1 p-2 w-full rounded border">
+            <input type="text" id="location" name="location" placeholder="Entrez le lieu de la réunion" class="mt-1 p-2 w-full rounded border">
           </div>
         </div>
         <div>
           <label for="participants" class="block text-sm font-medium" id="participants-label">Participants</label>
-          <input type="text" id="participants" name="participants" placeholder="Liste des participants"
-                 class="mt-1 p-2 w-full rounded border">
+          <input type="text" id="participants" name="participants" placeholder="Liste des participants" class="mt-1 p-2 w-full rounded border">
         </div>
         <div>
           <label for="additional-info" class="block text-sm font-medium" id="additional-info-label">Informations supplémentaires</label>
-          <textarea id="additional-info" name="additional-info" placeholder="Fournissez des précisions supplémentaires ici"
-                    class="mt-1 p-2 w-full rounded border"></textarea>
+          <textarea id="additional-info" name="additional-info" placeholder="Fournissez des précisions supplémentaires ici" class="mt-1 p-2 w-full rounded border"></textarea>
         </div>
         <div class="flex justify-between items-center">
-          <button id="generate-summary" type="button"
-                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed">
-            Générer...
+          <button id="generate-summary" type="button" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              Générer...
           </button>
           <form id="document-type-form" class="flex space-x-4">
             <label class="flex items-center text-sm font-medium">
               <input type="radio" name="document-type" value="synthesis" checked class="mr-2">
-              <!-- Ajout d’un span pour identifier ce texte -->
               <span id="radio-synthesis">Synthèse</span>
             </label>
             <label class="flex items-center text-sm font-medium">
@@ -149,9 +130,9 @@
     <!-- Results Section -->
     <div class="card-container bg-white p-6 rounded-lg shadow-md">
       <h2 id="results" class="text-xl font-bold mb-4">Résultats</h2>
-      <pre id="summary-output" class="bg-gray-100 p-4 rounded overflow-x-auto markdown-body"></pre>
-      <button id="download-summary" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 hidden">
-        Télécharger le document (.md)
+      <pre id="summary-output" class="bg-gray-100 p-4 rounded overflow-x-auto"></pre>
+      <button id="download-summary" class="hidden mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Télécharger
       </button>
     </div>
     <div id="notification-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
