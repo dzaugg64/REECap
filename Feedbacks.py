@@ -29,3 +29,12 @@ def close_websocket(client_id):
             clients[client_id].send(msg)
         except Exception as e:
             print(f"Error closing socket for {client_id}: {e}")
+
+def hide_overlay(client_id):
+    """Hide upload overlay of  a specific client."""
+    if client_id in clients:
+        try:
+            msg = json.dumps({"type": "file_uploaded"})
+            clients[client_id].send(msg)
+        except Exception as e:
+            print(f"Error closing socket for {client_id}: {e}")

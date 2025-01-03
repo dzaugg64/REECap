@@ -26,6 +26,11 @@ export function initializeWebSocket(websocketUrl) {
                     updateProcessingFeedback(data.message, data.subtitle); // Gère d'autres messages
                 } else if (data.type === 'progress') {
                     updateProgressBar(data.percentage); // Gère d'autres messages
+                } else if (data.type === 'file_uploaded') {
+                    const uploadOverlay = document.querySelector('.upload-overlay');
+                    if (uploadOverlay) {
+                        uploadOverlay.classList.add('hidden');
+                    }
                 } else if (data.type === 'close') {
                     socket.close();
                 } else {

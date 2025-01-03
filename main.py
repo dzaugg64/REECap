@@ -19,7 +19,7 @@ from flask_cors import CORS
 from flask_sock import Sock
 
 from AudioCleaner import AudioCleaner
-from Feedbacks import emit_feedback, update_progressbar, clients, close_websocket
+from Feedbacks import emit_feedback, update_progressbar, clients, close_websocket, hide_overlay
 
 if DEBUG:
     import logging
@@ -110,6 +110,7 @@ def process_file():
             emit_feedback(client_id, "Début du traitement...", "Fichier audio")
             input_path = os.path.join(AUDIO_FOLDER, unique_id)
             file.save(input_path)
+            hide_overlay(client_id)
             print(f"File received and saved: {input_path}")
             update_progressbar(client_id, "2")
 

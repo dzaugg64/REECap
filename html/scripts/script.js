@@ -73,6 +73,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const clientId = await initializeWebSocket(websocketUrl);
             console.log(`Client ID prêt : ${clientId}`);
             updateProcessingFeedback("Téléchargement en cours...", "")
+            const uploadOverlay = document.querySelector('.upload-overlay');
+            if (uploadOverlay) {
+                uploadOverlay.classList.remove('hidden');
+            }
 
             // 2. Préparer les données pour la requête POST
             const formData = new FormData();
