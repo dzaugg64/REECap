@@ -69,7 +69,7 @@ def process_file():
         return jsonify({"error": "Invalid client_id"}), 400
 
     try:
-        emit_feedback(client_id,  "Début du traitement...")
+        emit_feedback(client_id,  "Téléchargement en cours...")
         update_progressbar(client_id, "1")
 
         # Détecter le type de fichier
@@ -104,6 +104,7 @@ def process_file():
             transcription = context + "\n\n" + text_content if context else text_content
             cost = 0.0
             duration = 0.0
+            hide_overlay(client_id)
             update_progressbar(client_id, "60")
         else:
             # Gestion des fichiers audio
