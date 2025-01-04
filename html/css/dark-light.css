@@ -37,7 +37,8 @@
     color: #2c5282;
 }
 
-.bg-gray-100 #processing-status-text {
+.bg-gray-100 #processing-status-text,
+.bg-gray-100 #processing-status-subtext {
     color: #2c5282; /* Bleu sombre */
 }
 
@@ -92,7 +93,8 @@
     color: #63b3ed;
 }
 
-.bg-gray-900 #processing-status-text {
+.bg-gray-900 #processing-status-text,
+.bg-gray-900 #processing-status-subtext {
     color: #63b3ed; /* Bleu clair pour contraste en mode sombre */
 }
 
