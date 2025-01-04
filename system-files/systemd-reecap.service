@@ -6,7 +6,7 @@ After=network.target
 User=root
 WorkingDirectory=/home/reecap/reecap
 Environment="PATH=/home/reecap/reecap/.venv/bin:/usr/bin"
-ExecStart=/home/reecap/reecap/.venv/bin/gunicorn --worker-class eventlet -w 4 -b 127.0.0.1:5000 --timeout 600 --keep-alive 5 main:app
+ExecStart=/home/reecap/reecap/.venv/bin/gunicorn --worker-class eventlet -w 1 -b 127.0.0.1:5000 --timeout 600 --keep-alive 5 main:app
 Restart=always
 
 [Install]
