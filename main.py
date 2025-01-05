@@ -3,10 +3,12 @@
 import sys
 if "pydevd" in sys.modules:
     DEBUG = True
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
 else:
     DEBUG = False
 
-NO_OPENAI = True # Si vrai, Empêche la connexion à OPENAI
+NO_OPENAI = False # Si vrai, Empêche la connexion à OPENAI
 
 import os
 import uuid
@@ -14,16 +16,13 @@ import json
 import subprocess
 import openai
 import configparser
+import redis
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sock import Sock
 
 from audioCleaner import AudioCleaner
-from feedbacks import emit_feedback, update_progressbar, clients, close_websocket, hide_overlay
-
-if DEBUG:
-    import logging
-    logging.basicConfig(level=logging.DEBUG)
+from feedback_server import emit_feedback, update_progressbar, close_websocket, hide_overlay
 
 # Lecture de la configuration
 config = configparser.ConfigParser()
@@ -53,6 +52,9 @@ app = Flask(__name__)
 CORS(app)  # Activer les CORS pour toutes les routes
 sock = Sock(app)  # WebSocket via Flask-Sock
 
+# Configuration de Redis
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 # Route principale pour le traitement des fichiers
 @app.route('/process', methods=['POST'])
 def process_file():
@@ -65,16 +67,14 @@ def process_file():
         return jsonify({"error": "Empty file"}), 400
 
     client_id = request.form.get('client_id')  # Récupérer le client_id transmis
-    if not client_id or client_id not in clients:
-        return jsonify({"error": "Invalid client_id"}), 400
 
     try:
-        emit_feedback(client_id,  "Téléchargement en cours...")
-        update_progressbar(client_id, "1")
+        emit_feedback(redis_client, client_id,  "Téléchargement en cours...")
+        update_progressbar(redis_client, client_id, "1")
 
         # Détecter le type de fichier
         file_ext = os.path.splitext(file.filename)[1].lower()
-        unique_id = str(uuid.uuid4()) + "_" + file.filename
+        unique_id = client_id + "_" + file.filename
 
         # Récupérer le contexte facultatif
         context = request.form.get('context', '').strip()
@@ -99,35 +99,35 @@ def process_file():
         # Gestion des fichiers reçus
         if file_ext in ['.txt', '.md']:
             # Gestion des fichier texte
-            emit_feedback(client_id, "Début du traitement...", "Fichier texte")
+            emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier texte")
             text_content = file.read().decode('utf-8')
             transcription = context + "\n\n" + text_content if context else text_content
             cost = 0.0
             duration = 0.0
-            hide_overlay(client_id)
-            update_progressbar(client_id, "60")
+            hide_overlay(redis_client, client_id)
+            update_progressbar(redis_client, client_id, "60")
         else:
             # Gestion des fichiers audio
-            emit_feedback(client_id, "Début du traitement...", "Fichier audio")
+            emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier audio")
             input_path = os.path.join(AUDIO_FOLDER, unique_id)
             file.save(input_path)
-            hide_overlay(client_id)
+            hide_overlay(redis_client, client_id)
             print(f"File received and saved: {input_path}")
-            update_progressbar(client_id, "2")
+            update_progressbar(redis_client, client_id, "2")
 
             # Nettoyage de l'audio
-            emit_feedback(client_id, "Nettoyage de l'audio en cours...")
+            emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...")
             cleaned_path = os.path.join(AUDIO_FOLDER, unique_id + "_cleaned.mp3")
             audio_cleaner.remove_silence(input_path, cleaned_path, client_id)
             print(f"Audio nettoyé et enregistré : {cleaned_path}")
-            update_progressbar(client_id, "30")
+            update_progressbar(redis_client, client_id, "30")
 
             # Conversion et découpage audio
-            emit_feedback(client_id, "Découpage de l'audio en segments...")
+            emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...")
             duration, segments = split_audio(cleaned_path, unique_id)
             nb_segments = len(segments)
-            emit_feedback(client_id, "Découpage de l'audio en segments...", f"{nb_segments} segments créés")
-            update_progressbar(client_id, "40")
+            emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...", f"{nb_segments} segments créés")
+            update_progressbar(redis_client, client_id, "40")
 
             # Transcription des segments
             if DEBUG or NO_OPENAI:
@@ -136,18 +136,18 @@ def process_file():
                 with open(fake_transcription_path, "r") as fake_file:
                     transcription = fake_file.read()
                 print(f"Mode debug: transcription chargée depuis {fake_transcription_path}")
-                update_progressbar(client_id, "80")
+                update_progressbar(redis_client, client_id, "80")
             else:
                 transcriptions = []
                 count = 0
                 for segment in segments:
                     count += 1
                     progress = 40 + int(count / nb_segments * 40)
-                    emit_feedback(client_id, f"Transcription de {len(segments)} segments audio...",
+                    emit_feedback(redis_client, client_id, f"Transcription de {len(segments)} segments audio...",
                                   "traitement en cours... " + str(count) + "/" + str(len(segments)))
                     transcript = transcribe_audio(segment["filepath"])
                     transcriptions.append(transcript)
-                    update_progressbar(client_id, str(progress))
+                    update_progressbar(redis_client, client_id, str(progress))
 
                 # Combine les transcriptions
                 transcription = " ".join(transcriptions)
@@ -162,7 +162,7 @@ def process_file():
         print(f"Transcription complète sauvegardée : {transcription_path}")
 
         # Synthèse de la transcription
-        emit_feedback(client_id, "Synthèse en cours...")
+        emit_feedback(redis_client, client_id, "Synthèse en cours...")
         if DEBUG or NO_OPENAI:
             fake_summary_path = os.path.join(FAKE_FOLDER, "summary.md")
             with open(fake_summary_path, "r") as fake_file:
@@ -171,15 +171,15 @@ def process_file():
             in_tokens, out_tokens = 0, 0  # Tokens are irrelevant in debug mode
         else:
             in_tokens, out_tokens, summary = summarize_with_meeting_synthetiser(transcription, assistant_id)
-        update_progressbar(client_id, "100")
+        update_progressbar(redis_client, client_id, "100")
         summary_path = os.path.join(TEXT_FOLDER, summary_filename)
         with open(summary_path, "w") as f:
             f.write(summary)
         print(f"Synthèse sauvegardée : {summary_path}")
 
         # Nettoyage du répertoire AUDIO et fermeture du Websocket
-        cleanup_audio()
-        close_websocket(client_id)
+        cleanup_audio(client_id)
+        close_websocket(redis_client, client_id)
 
         # Calcul du coût
         if DEBUG or NO_OPENAI:
@@ -196,8 +196,8 @@ def process_file():
 
     except Exception as e:
         print(f"Erreur : {e}")
-        emit_feedback(client_id, f"Erreur : {str(e)}")
-        cleanup_audio()
+        emit_feedback(redis_client, client_id, f"Erreur : {str(e)}")
+        cleanup_audio(client_id)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/get-file/<folder>/<filename>', methods=['GET'])
@@ -230,24 +230,6 @@ def get_file(folder, filename):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-@sock.route('/feedback')
-def feedback(ws):
-    """Gère les connexions WebSocket pour les retours."""
-    client_id = str(uuid.uuid4())
-    clients[client_id] = ws
-
-    # Envoyer le client_id au client
-    ws.send(json.dumps({"type": "client_id", "client_id": client_id}))
-
-    try:
-        while True:
-            message = ws.receive()
-            print(f'Message received: {message}')
-            if message is None:
-                break
-    finally:
-        del clients[client_id]
 
 # Fonction pour diviser les fichiers audio
 def split_audio(input_path, unique_id):
@@ -339,15 +321,16 @@ def summarize_with_meeting_synthetiser(transcription_text, assistant_id):
         raise RuntimeError(f"Erreur : {e}")
 
 # Nettoyage des fichiers audio
-def cleanup_audio():
-    """Remove all files in the audio folders."""
+def cleanup_audio(client_id):
+    """Remove all files from client_id in the audio folders."""
     for filename in os.listdir(AUDIO_FOLDER):
-        file_path = os.path.join(AUDIO_FOLDER, filename)
-        try:
-            os.remove(file_path)
-            print(f"Deleted segment: {file_path}")
-        except Exception as e:
-            print(f"Erreur lors du nettoyage {file_path}: {e}")
+        if client_id in filename:
+            file_path = os.path.join(AUDIO_FOLDER, filename)
+            try:
+                os.remove(file_path)
+                print(f"Deleted segment: {file_path}")
+            except Exception as e:
+                print(f"Erreur lors du nettoyage {file_path}: {e}")
 
 if __name__ == "__main__":
     if DEBUG:

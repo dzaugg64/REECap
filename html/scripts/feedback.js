@@ -27,10 +27,7 @@ export function initializeWebSocket(websocketUrl) {
                 } else if (data.type === 'progress') {
                     updateProgressBar(data.percentage); // Gère d'autres messages
                 } else if (data.type === 'file_uploaded') {
-                    const uploadOverlay = document.querySelector('.upload-overlay');
-                    if (uploadOverlay) {
-                        uploadOverlay.classList.add('hidden');
-                    }
+                    hideUploadOverlay();
                 } else if (data.type === 'close') {
                     socket.close();
                 } else {
@@ -64,18 +61,11 @@ export function updateProcessingFeedback(message, subtitle) {
         console.error('Processing feedback element not found');
         return;
     }
-
     // Update the feedback text
     const statusElement = document.getElementById('processing-status-text');
-    if (statusElement) {
-        statusElement.textContent = message;
-    }
-
     const subtitleElement = document.getElementById('processing-status-subtext');
-    if (subtitleElement) {
-        subtitleElement.textContent = subtitle;
-    }
-
+    if (statusElement) statusElement.textContent = message;
+    if (subtitleElement) subtitleElement.textContent = subtitle || '';
     // Ensure the feedback element is visible
     feedbackElement.classList.remove('hidden');
 }
@@ -87,7 +77,16 @@ export function updateProcessingFeedback(message, subtitle) {
 export function updateProgressBar(percent) {
     const progressBar = document.getElementById('progress-bar');
     progressBar.style.width = `${percent}%`; // Met à jour la largeur
+    progressBar.textContent = `${percent}%`;
   }
+
+
+  function hideUploadOverlay() {
+    const uploadOverlay = document.querySelector('.upload-overlay');
+    if (uploadOverlay) {
+        uploadOverlay.classList.add('hidden');
+    }
+}
 
 /**
  * Hide the processing feedback element.
@@ -101,21 +100,6 @@ export function hideProcessingFeedback() {
     }
 
     feedbackElement.classList.add('hidden');
-}
-
-
-/**
- * Shows the processing feedback element.
- */
-export function showProcessingFeedback() {
-    const feedbackElement = document.getElementById('processing-feedback');
-
-    if (!feedbackElement) {
-        console.error('Processing feedback element not found');
-        return;
-    }
-
-    feedbackElement.classList.remove('hidden');
 }
 
 /**

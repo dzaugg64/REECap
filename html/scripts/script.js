@@ -3,7 +3,6 @@ import {
     showNotification,
     initializeWebSocket,
     hideProcessingFeedback,
-    showProcessingFeedback,
     updateProcessingFeedback
 } from './feedback.js';
 
