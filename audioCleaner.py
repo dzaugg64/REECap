@@ -3,11 +3,15 @@ import webrtcvad
 import contextlib
 import subprocess
 import os
-from Feedbacks import emit_feedback, update_progressbar
+import redis
+from feedback_server import emit_feedback, update_progressbar
 
 # Configuration de l'application
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_FOLDER = os.path.join(BASE_DIR, 'AUDIO')
+
+# Configuration de Redis
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 class AudioCleaner:
     def __init__(self, aggressiveness=1):
@@ -75,17 +79,17 @@ class AudioCleaner:
         :param input_path: Chemin du fichier d'entrée (audio brut).
         :param output_path: Chemin du fichier MP3 de sortie nettoyé.
         """
-        intermediate_wav = os.path.join(AUDIO_FOLDER,"intermediate.wav")
-        cleaned_wav = os.path.join(AUDIO_FOLDER,"cleaned.wav")
+        intermediate_wav = os.path.join(AUDIO_FOLDER,client_id + "_intermediate.wav")
+        cleaned_wav = os.path.join(AUDIO_FOLDER,client_id + "_cleaned.wav")
 
         try:
             # Convertir en WAV intermédiaire
-            emit_feedback(client_id, "Nettoyage de l'audio en cours...", "Conversion en wav")
+            emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...", "Conversion en wav")
             self._convert_to_wav(input_path, intermediate_wav)
-            update_progressbar(client_id, 10)
+            update_progressbar(redis_client, client_id, 10)
 
             # Nettoyer les silences
-            emit_feedback(client_id, "Nettoyage de l'audio en cours...", "Suppression des silences")
+            emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...", "Suppression des silences")
             pcm_data, sample_rate = self._read_wave(intermediate_wav)
 
             frame_duration = 30  # Durée des trames en ms
@@ -99,10 +103,10 @@ class AudioCleaner:
 
             non_silent_audio = b''.join(segments)
             self._write_wave(cleaned_wav, non_silent_audio, sample_rate)
-            update_progressbar(client_id, 20)
+            update_progressbar(redis_client, client_id, 20)
 
             # Convertir en MP3 final
-            emit_feedback(client_id, "Nettoyage de l'audio en cours...", "Conversion en mp3")
+            emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...", "Conversion en mp3")
             self._convert_to_mp3(cleaned_wav, output_path)
 
         finally:

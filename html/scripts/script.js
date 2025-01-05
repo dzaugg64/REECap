@@ -3,7 +3,6 @@ import {
     showNotification,
     initializeWebSocket,
     hideProcessingFeedback,
-    showProcessingFeedback,
     updateProcessingFeedback
 } from './feedback.js';
 
@@ -17,6 +16,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadTranscription = document.getElementById('download-transcription');
     const downloadSummary = document.getElementById('download-summary');
     let uploadedFile = null;
+    let PreviousFileName = null;
+
 
     // File upload area text update
     const updateFileUploadText = (fileName = null) => {
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Generate summary handler
     generateSummaryButton.addEventListener('click', async () => {
-        if (!uploadedFile) {
+        if (!uploadedFile && transcriptionOutput.textContent === '') {
             showNotification('error', 'Erreur', 'Veuillez importer un fichier avant de générer.');
             return;
         }
@@ -72,27 +73,54 @@ document.addEventListener('DOMContentLoaded', async () => {
              // 1. Initialiser le WebSocket et attendre le clientId
             const clientId = await initializeWebSocket(websocketUrl);
             console.log(`Client ID prêt : ${clientId}`);
-            updateProcessingFeedback("Téléchargement en cours...", "")
 
             // 2. Préparer les données pour la requête POST
             const formData = new FormData();
-            formData.append('file', uploadedFile); // Fichier sélectionné
-            formData.append('client_id', clientId); // Inclure le clientId
 
-            const context = `
-                Objectif: ${document.getElementById('objective').value || ''}
-                Date: ${document.getElementById('date').value || new Date().toLocaleDateString()}
-                Lieu: ${document.getElementById('location').value || ''}
-                Participants: ${document.getElementById('participants').value || ''}
-                ${document.getElementById('additional-info').value || ''}
-            `.trim();
-            formData.append('context', context);
+            // Vérifie si le fichier téléchargé a changé
+            if (uploadedFile && PreviousFileName === uploadedFile.name && transcriptionOutput.textContent !== '') {
+                // Si le fichier n'a pas changé et qu'il y a une transcription, soumettre la transcription existante
+                const transcriptionBlob = new Blob([transcriptionOutput.textContent], { type: 'text/plain' });
+                formData.append('file', transcriptionBlob, 'transcription.txt'); // Fichier texte généré
+                formData.append('client_id', clientId); // Inclure le clientId
+                console.log('Utilisation de la transcription existante.');
+            } else {
+                // Mise à jour de la variable globale pour le nom du fichier
+                PreviousFileName = uploadedFile ? uploadedFile.name : null;
 
-            // Récupère le type de document à créer
-            const documentType = document.querySelector('input[name="document-type"]:checked').value;
-            formData.append('document_type', documentType);
+                // Activation de l'overlay de téléchargement
+                updateProcessingFeedback("Téléchargement en cours...", "")
+                const uploadOverlay = document.querySelector('.upload-overlay');
+                if (uploadOverlay) {
+                    uploadOverlay.classList.remove('hidden');
+                }
 
-            // 3. Envoyer la requête au backend
+
+                // Traitement normal pour un nouvel audio
+                if (!uploadedFile) {
+                    showNotification('error', 'Erreur', 'Veuillez importer un fichier valide avant de générer.');
+                    return;
+                }
+
+                formData.append('file', uploadedFile); // Fichier audio sélectionné
+                formData.append('client_id', clientId); // Inclure le clientId
+
+                // TODO: voir si la construction
+                const context = `
+                    Objectif: ${document.getElementById('objective').value || ''}
+                    Date: ${document.getElementById('date').value || new Date().toLocaleDateString()}
+                    Lieu: ${document.getElementById('location').value || ''}
+                    Participants: ${document.getElementById('participants').value || ''}
+                    ${document.getElementById('additional-info').value || ''}
+                `.trim();
+                formData.append('context', context);
+
+                // Récupère le type de document à créer
+                const documentType = document.querySelector('input[name="document-type"]:checked').value;
+                formData.append('document_type', documentType);
+            }
+
+            // Envoyer la requête au backend
             const response = await fetch('/process', { method: 'POST', body: formData });
             const result = await response.json();
 
@@ -149,11 +177,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     URL.revokeObjectURL(url);
                 });
             }
-            hideProcessingFeedback()
+
+            hideProcessingFeedback();
             showNotification('success', 'Succès', 'Traitement terminé');
         } catch (error) {
             console.error('Erreur lors de la génération', error);
-            hideProcessingFeedback()
+            hideProcessingFeedback();
             showNotification('error', 'Erreur', error.message);
         }
     });

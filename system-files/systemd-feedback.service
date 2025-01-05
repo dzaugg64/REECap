@@ -1,12 +1,12 @@
 [Unit]
-Description=REECap Backend service WSGI
+Description=REECap Backend service ASGI
 After=network.target
 
 [Service]
 User=root
 WorkingDirectory=/home/reecap/reecap
 Environment="PATH=/home/reecap/reecap/.venv/bin:/usr/bin"
-ExecStart=/home/reecap/reecap/.venv/bin/gunicorn --worker-class eventlet -w 4 -b 127.0.0.1:5000 --timeout 600 --keep-alive 10 main:app
+ExecStart=/home/reecap/reecap/.venv/bin/gunicorn --worker-class eventlet -w 2 -b 127.0.0.1:6000 --timeout 600 --keep-alive 10 feedback_server:app
 Restart=always
 
 [Install]

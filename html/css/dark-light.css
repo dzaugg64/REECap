@@ -1,7 +1,3 @@
-/* TODO: Nettoyer le CSS */
-/* TODO: Réintégrer dark-light.css */
-/* TODO: Vérifier processing feedback */
-
 /* Light mode styles */
 .bg-gray-100 .card-container {
     background-color: white;
@@ -18,12 +14,32 @@
 
 .bg-gray-100 #file-upload-area {
     border-color: #4a5568;
+    background-color: #ffffff;
     color: #1a202c;
 }
 
-.bg-gray-100 #file-upload-area.dragover {
-    background-color: #f7fafc;
+.bg-gray-100 #file-upload-area:hover {
     border-color: #3182ce;
+    background-color: #f7fafc;
+}
+
+.bg-gray-100 #file-upload-area.dragover {
+    border-color: #3182ce;
+    background-color: #f7fafc;
+}
+
+.bg-gray-100 #cost-display {
+    color: #1a202c;
+}
+
+.bg-gray-100 #processing-feedback {
+    background-color: #ebf8ff;
+    color: #2c5282;
+}
+
+.bg-gray-100 #processing-status-text,
+.bg-gray-100 #processing-status-subtext {
+    color: #2c5282; /* Bleu sombre */
 }
 
 .bg-gray-100 #transcription-output,
@@ -54,12 +70,32 @@
 
 .bg-gray-900 #file-upload-area {
     border-color: #4a5568;
+    background-color: #2d3748;
     color: #f7fafc;
 }
 
-.bg-gray-900 #file-upload-area.dragover {
-    background-color: #2d3748;
+.bg-gray-900 #file-upload-area:hover {
     border-color: #63b3ed;
+    background-color: #2d3748;
+}
+
+.bg-gray-900 #file-upload-area.dragover {
+    border-color: #63b3ed;
+    background-color: #2d3748;
+}
+
+.bg-gray-900 #cost-display {
+    color: #f7fafc;
+}
+
+.bg-gray-900 #processing-feedback {
+    background-color: #2d3748;
+    color: #63b3ed;
+}
+
+.bg-gray-900 #processing-status-text,
+.bg-gray-900 #processing-status-subtext {
+    color: #63b3ed; /* Bleu clair pour contraste en mode sombre */
 }
 
 .bg-gray-900 #transcription-output,

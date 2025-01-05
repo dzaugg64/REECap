@@ -2,58 +2,42 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            toggleTheme();
-        }
-    }
-    themeToggle.addEventListener('click', toggleTheme);
-})
-
-function toggleTheme() {
     const body = document.getElementById('theme');
-    const cards = document.querySelectorAll('.card-container');
-    const inputs = document.querySelectorAll('input, textarea');
     const outputAreas = document.querySelectorAll('#transcription-output, #summary-output, #cost-display, #processing-feedback');
-    const isDarkMode = body.classList.contains('bg-gray-900');
+    const savedTheme = localStorage.getItem('theme');
 
-    if (!isDarkMode) {
-        // Switch to dark mode
-        body.classList.remove('bg-gray-100', 'text-gray-900');
-        body.classList.add('bg-gray-900', 'text-gray-100');
-        cards.forEach(card => {
-            card.classList.remove('bg-white');
-            card.classList.add('bg-gray-800');
+    // Fonction pour appliquer le thème
+    const applyTheme = (isDark) => {
+        body.classList.toggle('bg-gray-900', isDark);
+        body.classList.toggle('text-gray-100', isDark);
+        body.classList.toggle('bg-gray-100', !isDark);
+        body.classList.toggle('text-gray-900', !isDark);
+
+        outputAreas.forEach(area => {
+            area.classList.toggle('bg-gray-900', isDark);
+            area.classList.toggle('text-gray-100', isDark);
+            area.classList.toggle('bg-gray-100', !isDark);
+            area.classList.toggle('text-gray-900', !isDark);
         });
-        inputs.forEach(input => {
-            input.classList.remove('bg-white', 'text-gray-900', 'border-gray-300');
-            input.classList.add('bg-gray-700', 'text-gray-100', 'border-gray-600');
-        });
-        outputAreas.forEach(output => {
-            output.classList.remove('bg-gray-100', 'text-gray-900');
-            output.classList.add('bg-gray-700', 'text-gray-100');
-        });
+
+        const feedbackElement = document.getElementById('processing-feedback');
+        if (feedbackElement) {
+            feedbackElement.style.backgroundColor = isDark ? '#2d3748' : '#ebf8ff';
+            feedbackElement.style.color = isDark ? '#a0aec0' : '#2c5282';
+        }
+    };
+
+    // Initialisation du thème au chargement
+    if (savedTheme === 'dark') {
+        applyTheme(true);
     } else {
-        // Switch to light mode
-        body.classList.remove('bg-gray-900', 'text-gray-100');
-        body.classList.add('bg-gray-100', 'text-gray-900');
-        cards.forEach(card => {
-            card.classList.remove('bg-gray-800');
-            card.classList.add('bg-white');
-        });
-        inputs.forEach(input => {
-            input.classList.remove('bg-gray-700', 'text-gray-100', 'border-gray-600');
-            input.classList.add('bg-white', 'text-gray-900', 'border-gray-300');
-        });
-        outputAreas.forEach(output => {
-            output.classList.remove('bg-gray-700', 'text-gray-100');
-            output.classList.add('bg-gray-100', 'text-gray-900');
-        });
+        applyTheme(false);
     }
 
-    localStorage.setItem('theme', !isDarkMode ? 'dark' : 'light');
-}
-
-
+    // Écouteur pour basculer le thème
+    themeToggle.addEventListener('click', () => {
+        const isDark = body.classList.contains('bg-gray-900');
+        applyTheme(!isDark);
+        localStorage.setItem('theme', !isDark ? 'dark' : 'light');
+    });
+});
