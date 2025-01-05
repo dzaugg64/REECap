@@ -3,7 +3,7 @@ import webrtcvad
 import contextlib
 import subprocess
 import os
-from Feedbacks import emit_feedback, update_progressbar
+from feedbacks import emit_feedback, update_progressbar
 
 # Configuration de l'application
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

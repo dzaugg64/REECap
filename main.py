@@ -18,8 +18,8 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_sock import Sock
 
-from AudioCleaner import AudioCleaner
-from Feedbacks import emit_feedback, update_progressbar, clients, close_websocket, hide_overlay
+from audioCleaner import AudioCleaner
+from feedbacks import emit_feedback, update_progressbar, clients, close_websocket, hide_overlay
 
 if DEBUG:
     import logging
