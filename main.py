@@ -231,6 +231,29 @@ def get_file(folder, filename):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/share', methods=['POST'])
+def handle_shared_file():
+    """Traite les fichiers partagés via iOS."""
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "Empty file"}), 400
+
+    # Sauvegarde temporaire
+    unique_filename = str(uuid.uuid4()) + "_" + file.filename
+    temp_path = os.path.join(AUDIO_FOLDER, unique_filename)
+    file.save(temp_path)
+
+    # Retourner les informations du fichier au frontend
+    return jsonify({
+        "success": True,
+        "filename": unique_filename,
+        "path": temp_path
+    })
+
+
 # Fonction pour diviser les fichiers audio
 def split_audio(input_path, unique_id):
     """

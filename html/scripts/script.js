@@ -42,6 +42,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Fonction pour gérer un fichier partagé
+    async function handleShare(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/share', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Mettre à jour uploadedFile avec le fichier partagé
+                uploadedFile = new File([file], result.filename);
+                console.log(`Fichier partagé mis à jour : ${uploadedFile.name}`);
+                updateFileUploadText(uploadedFile.name); // Met à jour l'interface avec le nom du fichier
+            } else {
+                console.error('Erreur lors du partage du fichier :', result.error);
+            }
+        } catch (error) {
+            console.error('Erreur réseau lors du partage du fichier :', error);
+        }
+    }
+
+    // Gestion du partage via /share
+    const sharedFile = await fetchSharedFileFromIOS(); // Fonction fictive pour récupérer le fichier
+    if (sharedFile) {
+        await handleShare(sharedFile);
+    }
+
     // Drag and drop handlers
     fileUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
