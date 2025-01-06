@@ -80,8 +80,7 @@ export function updateProgressBar(percent) {
     progressBar.textContent = `${percent}%`;
   }
 
-
-  function hideUploadOverlay() {
+function hideUploadOverlay() {
     const uploadOverlay = document.querySelector('.upload-overlay');
     if (uploadOverlay) {
         uploadOverlay.classList.add('hidden');

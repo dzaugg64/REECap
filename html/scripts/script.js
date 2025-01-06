@@ -6,6 +6,15 @@ import {
     updateProcessingFeedback
 } from './feedback.js';
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(
+            () => console.log('Service Worker enregistré avec un scope global'),
+            (err) => console.error('Erreur lors de l’enregistrement du Service Worker', err)
+        );
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Existing element declarations
     const fileUploadArea = document.getElementById('file-upload-area');
@@ -17,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const downloadSummary = document.getElementById('download-summary');
     let uploadedFile = null;
     let PreviousFileName = null;
-
 
     // File upload area text update
     const updateFileUploadText = (fileName = null) => {
