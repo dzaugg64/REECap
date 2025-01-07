@@ -1,3 +1,5 @@
+*** MODE DEBUG - NO OPENAI ***
+
 Objectif: Discussion des introductions dans le bâtiment.
             Date: 2024-12-05
             Lieu: OIM

@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    // Détection dynamique des changements de taille
+    window.addEventListener('resize', () => {
+        const form = document.getElementById('document-type-form');
+        if (window.innerWidth < 640) {
+            form.style.flexDirection = 'column';
+        } else {
+            form.style.flexDirection = 'row';
+        }
+    });
+
+
     // Drag and drop handlers
     fileUploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();

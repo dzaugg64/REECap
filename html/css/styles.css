@@ -1,11 +1,11 @@
 /* Transitions globales */
 * {
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 /* Base styles for body and content */
 body {
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
 }
 
 /* Card container styles */
@@ -20,7 +20,7 @@ body {
     padding: 20px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.1s ease-in-out;
     position: relative;
 }
 
@@ -45,19 +45,19 @@ body {
     border-radius: 4px;
     resize: none;
     box-sizing: border-box;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.1s ease-in-out;
 }
 
 /* Cost display styling */
 #cost-display {
     text-align: right;
     margin-top: 1rem;
-    transition: color 0.2s ease-in-out;
+    transition: color 0.1s ease-in-out;
 }
 
 /* Button styles */
 button {
-    transition: all 0.2s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
 
 button:disabled {
@@ -67,7 +67,7 @@ button:disabled {
 
 /* Theme toggle button */
 #theme-toggle {
-    transition: all 0.2s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
 
 .bg-gray-100 #theme-toggle {
@@ -82,7 +82,7 @@ button:disabled {
 
 /* Processing feedback styles */
 #processing-feedback {
-    transition: all 0.2s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
 
 .bg-gray-900 #processing-feedback {
@@ -99,7 +99,7 @@ button:disabled {
     border-radius: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 50;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.1s ease-in-out;
 }
 
 .bg-gray-900 .notification {
@@ -109,7 +109,7 @@ button:disabled {
 
 /* Progress bar styles */
 .progress-bar {
-    transition: width 0.2s ease-in-out;
+    transition: width 0.1s ease-in-out;
 }
 
 /* Language selector styles */
@@ -172,7 +172,23 @@ button:disabled {
         margin-left: 0;
         margin-top: 1rem;
     }
+
+    /* TODO: voir si ces commandes responsives on un quelconque effet */
+    #document-type-form {
+        flex-direction: column; /* Les boutons passent en disposition verticale */
+        gap: 0.5rem; /* Ajoute un espacement entre les boutons */
+    }
+
+    #document-type-form label {
+        width: 100%; /* Les boutons occupent toute la largeur */
+    }
+
+    button {
+        font-size: 0.875rem; /* Réduction de la taille de la police */
+        padding: 0.5rem 0.75rem; /* Ajuste les marges internes */
+    }
 }
+
 /* Formatage des tableaux */
 table {
     border-collapse: collapse;

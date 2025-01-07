@@ -1,3 +1,5 @@
+*** MODE DEBUG - NO OPENAI ***
+
 ## Contexte 
 
 **Date :** 2024-12-05  
