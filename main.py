@@ -1,4 +1,4 @@
-# TODO: Créer une option "partager" pour IOS
+# TODO: Créer une option "enregistrer" pour IOS
 
 import sys
 if "pydevd" in sys.modules:

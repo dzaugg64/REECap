@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 formData.append('file', uploadedFile); // Fichier audio sélectionné
                 formData.append('client_id', clientId); // Inclure le clientId
 
-                // TODO: voir si la construction
+                // TODO: voir si la construction des variables peut être faite de manière à dupptimmer Objectif:, Date: etc.. si vide
                 const context = `
                     Objectif: ${document.getElementById('objective').value || ''}
                     Date: ${document.getElementById('date').value || new Date().toLocaleDateString()}
