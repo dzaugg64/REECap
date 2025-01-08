@@ -27,7 +27,13 @@
     <!-- File Upload and Transcription Display Section -->
     <div class="flex flex-col sm:flex-row sm:space-x-4 mb-6">
       <div class="card-container bg-white p-6 rounded-lg shadow-md sm:w-1/4">
-        <h2 id="import-file" class="text-xl font-bold mb-4">Importer un fichier</h2>
+        <div class="record-container">
+            <button id="start-recording" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Commencer l'enregistrement</button>
+            <button id="stop-recording" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 hidden">Arrêter l'enregistrement</button>
+        </div>
+        <pre id="recording-status" class="text-sm text-gray-700 mt-2"></pre>
+
+        <!-- h2 id="import-file" class="text-xl font-bold mb-4">Importer un fichier</h2 -->
         <div id="file-upload-area" class="border-2 border-dashed border-gray-400 rounded-lg p-6 text-center cursor-pointer">
           <p id="drop-file" class="font-medium">Glissez-déposez un fichier ici ou cliquez pour importer</p>
           <p id="supported-formats" class="text-sm text-gray-500 mt-2">Formats pris en charge : MP3, WAV, M4A, TXT</p>
@@ -37,7 +43,6 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <!-- TODO: Activer cette option pendant le téléchargement -->
               <span id="upload-in-progress">Téléchargement en cours...</span>
             </div>
           </div>

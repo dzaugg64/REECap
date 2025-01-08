@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const summaryOutput = document.getElementById('summary-output');
     const downloadTranscription = document.getElementById('download-transcription');
     const downloadSummary = document.getElementById('download-summary');
+    const startButton = document.getElementById('start-recording');
+    const stopButton = document.getElementById('stop-recording');
+    const recordingStatus = document.getElementById('recording-status');
+    let mediaRecorder;
+    let audioChunks = [];
     let uploadedFile = null;
     let PreviousFileName = null;
 
@@ -41,6 +46,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             formatsText.classList.remove('hidden');
         }
     };
+
+    // Gestion de l'enregistrement
+    startButton.addEventListener('click', async () => {
+        // Demande l'autorisation d'utiliser le microphone
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            // Événement déclenché lorsque des données sont disponibles
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.push(event.data);
+            };
+
+            // Événement déclenché lorsque l'enregistrement est arrêté
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioFile = new File([audioBlob], 'recording.webm', { type: 'audio/webm' });
+                uploadedFile = audioFile; // Met à jour la variable uploadedFile
+                audioChunks = []; // Réinitialise les chunks
+                updateFileUploadText(uploadedFile.name); // Met à jour l'interface utilisateur
+                recordingStatus.textContent = 'Enregistrement terminé.';
+            };
+
+            // Commence l'enregistrement
+            mediaRecorder.start();
+            recordingStatus.textContent = 'Enregistrement en cours...';
+            startButton.classList.add('hidden');
+            stopButton.classList.remove('hidden');
+        } catch (error) {
+            console.error('Erreur lors de l’accès au microphone :', error);
+            recordingStatus.textContent = 'Erreur lors de l’accès au microphone.';
+        }
+    });
+
+    stopButton.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop(); // Arrête l'enregistrement
+        }
+        stopButton.classList.add('hidden');
+        startButton.classList.remove('hidden');
+    });
 
     // Détection dynamique des changements de taille
     window.addEventListener('resize', () => {
