@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const websocketUrl = 'ws://reecap.daniel-zaugg.ch/feedback';
+        const websocketUrl = 'wss://reecap.daniel-zaugg.ch/feedback';
         try{
              // 1. Initialiser le WebSocket et attendre le clientId
             const clientId = await initializeWebSocket(websocketUrl);
