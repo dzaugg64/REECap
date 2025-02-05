@@ -13,6 +13,7 @@ NO_OPENAI = True # Si vrai, Empêche la connexion à OPENAI
 import os
 import uuid
 import json
+import hashlib
 import subprocess
 import openai
 import configparser
@@ -332,6 +333,68 @@ def cleanup_audio(client_id):
                 print(f"Deleted segment: {file_path}")
             except Exception as e:
                 print(f"Erreur lors du nettoyage {file_path}: {e}")
+
+# Fonctions utilitaires pour la mise en cache
+
+def compute_file_hash(file):
+    """
+    Calcule un hash SHA-256 sur les 64 premiers Ko du fichier.
+    :param file: Fichier binaire (BytesIO ou fichier ouvert)
+    :return: Hash hexadécimal du fichier
+    """
+    hasher = hashlib.sha256()
+    chunk_size = 65536  # 64 Ko
+    file.seek(0)  # Revenir au début du fichier
+    chunk = file.read(chunk_size)  # Lire les 64 Ko du début
+    hasher.update(chunk)  # Mettre à jour le hash avec ce chunk
+    file.seek(0)  # Réinitialiser la position pour les opérations futures
+    return hasher.hexdigest()
+
+def get_cached_transcription(file_hash):
+    """
+    Récupère une transcription mise en cache si elle existe.
+    :param file_hash: Hash SHA-256 du fichier utilisé comme clé.
+    :return: La transcription en texte si disponible, sinon None.
+    """
+    cached_transcription = redis_client.hget("transcriptions", file_hash)
+    return cached_transcription.decode('utf-8') if cached_transcription else None
+
+def cache_transcription(file_hash, transcription, expiration=86400):
+    """
+    Stocke une transcription dans le cache Redis avec expiration.
+    :param file_hash: Hash SHA-256 du fichier utilisé comme clé.
+    :param transcription: Texte de la transcription à stocker.
+    :param expiration: Temps d’expiration en secondes (par défaut : 24h).
+    """
+    redis_client.hset("transcriptions", file_hash, transcription)
+    redis_client.expire("transcriptions", expiration)
+
+def get_cached_summary(file_hash):
+    """
+    Récupère un résumé mis en cache si disponible.
+    :param file_hash: Hash SHA-256 du fichier utilisé comme clé.
+    :return: Le résumé en texte si disponible, sinon None.
+    """
+    cached_summary = redis_client.hget("summaries", file_hash)
+    return cached_summary.decode('utf-8') if cached_summary else None
+
+def cache_summary(file_hash, summary, expiration=86400):
+    """
+    Stocke un résumé dans le cache Redis avec expiration.
+    :param file_hash: Hash SHA-256 du fichier utilisé comme clé.
+    :param summary: Texte du résumé à stocker.
+    :param expiration: Temps d’expiration en secondes (par défaut : 24h).
+    """
+    redis_client.hset("summaries", file_hash, summary)
+    redis_client.expire("summaries", expiration)
+
+def clear_cache(file_hash):
+    """
+    Supprime une transcription et un résumé du cache Redis pour un fichier donné.
+    :param file_hash: Hash SHA-256 du fichier à supprimer du cache.
+    """
+    redis_client.hdel("transcriptions", file_hash)
+    redis_client.hdel("summaries", file_hash)
 
 if __name__ == "__main__":
     if DEBUG:
