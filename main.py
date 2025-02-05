@@ -75,25 +75,25 @@ def process_file():
         # TODO: Implémenter détection de type de fichier basée sur le contenu
         # Détecter le type de fichier
         file_ext = os.path.splitext(file.filename)[1].lower()
-        unique_id = client_id + "_" + file.filename
+        unique_filename = client_id + "_" + file.filename
 
         # Récupérer le contexte facultatif
         context = request.form.get('context', '').strip()
         print(f"Context received: {context if context else 'No context provided'}")
 
-        # Récupère le type de document
+        # Récupère le type de document à produire
         document_type = request.form.get('document_type', 'synthesis').strip()
 
         # Gère les assistants en fonction du type de document
         if document_type == 'synthesis':
             assistant_id = config['OPENAI']['synthesis_assistant_id']
-            summary_filename = f"{unique_id}_synthèse.md"
+            summary_filename = f"{unique_filename}_synthèse.md"
         elif document_type == 'detailed-pv':
             assistant_id = config['OPENAI']['detailed_pv_assistant_id']
-            summary_filename = f"{unique_id}_PV_détaillé.md"
+            summary_filename = f"{unique_filename}_PV_détaillé.md"
         elif document_type == 'exec-summary':
             assistant_id = config['OPENAI']['exec_summary_assistant_id']
-            summary_filename = f"{unique_id}_résumé_exécutif.md"
+            summary_filename = f"{unique_filename}_résumé_exécutif.md"
         else:
             return jsonify({"error": "Invalid document type"}), 400
 
@@ -110,7 +110,7 @@ def process_file():
         else:
             # Gestion des fichiers audio
             emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier audio")
-            input_path = os.path.join(AUDIO_FOLDER, unique_id)
+            input_path = os.path.join(AUDIO_FOLDER, unique_filename)
             file.save(input_path)
             hide_overlay(redis_client, client_id)
             print(f"File received and saved: {input_path}")
@@ -118,14 +118,14 @@ def process_file():
 
             # Nettoyage de l'audio
             emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...")
-            cleaned_path = os.path.join(AUDIO_FOLDER, unique_id + "_cleaned.mp3")
+            cleaned_path = os.path.join(AUDIO_FOLDER, unique_filename + "_cleaned.mp3")
             audio_cleaner.remove_silence(input_path, cleaned_path, client_id)
             print(f"Audio nettoyé et enregistré : {cleaned_path}")
             update_progressbar(redis_client, client_id, "30")
 
             # Conversion et découpage audio
             emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...")
-            duration, segments = split_audio(cleaned_path, unique_id)
+            duration, segments = split_audio(cleaned_path, unique_filename)
             nb_segments = len(segments)
             emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...", f"{nb_segments} segments créés")
             update_progressbar(redis_client, client_id, "40")
