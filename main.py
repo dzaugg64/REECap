@@ -72,6 +72,7 @@ def process_file():
         emit_feedback(redis_client, client_id,  "Téléchargement en cours...")
         update_progressbar(redis_client, client_id, "1")
 
+        # TODO: Implémenter détection de type de fichier basée sur le contenu
         # Détecter le type de fichier
         file_ext = os.path.splitext(file.filename)[1].lower()
         unique_id = client_id + "_" + file.filename
