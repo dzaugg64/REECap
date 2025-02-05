@@ -156,7 +156,7 @@ def process_file():
                     transcription = f"{context}\n\n{transcription}"
 
         # Sauve la transcription vers un fichier .txt
-        transcription_filename = f"{unique_id}_transcription.txt"
+        transcription_filename = f"{unique_filename}_transcription.txt"
         transcription_path = os.path.join(TEXT_FOLDER, transcription_filename)
         with open(transcription_path, "w") as f:
             f.write(transcription)
