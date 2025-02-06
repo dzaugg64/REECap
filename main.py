@@ -99,62 +99,84 @@ def process_file():
             return jsonify({"error": "Invalid document type"}), 400
 
         # Gestion des fichiers reçus
-        if file_ext in ['.txt', '.md']:
-            # Gestion des fichier texte
-            emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier texte")
-            text_content = file.read().decode('utf-8')
-            transcription = context + "\n\n" + text_content if context else text_content
-            cost = 0.0
+        # Calcul du hash du fichier
+        file_hash = compute_file_hash(file)
+
+        # Vérifier si la transcription est déjà en cache
+        cached_transcription = get_cached_transcription(file_hash)
+
+        if cached_transcription:
+            print(f"Transcription récupérée depuis le cache pour {file.filename} (Hash: {file_hash})")
+            transcription = cached_transcription
+            cost = 0.0  # Aucun coût si déjà en cache
             duration = 0.0
             hide_overlay(redis_client, client_id)
             update_progressbar(redis_client, client_id, "60")
         else:
-            # Gestion des fichiers audio
-            emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier audio")
-            input_path = os.path.join(AUDIO_FOLDER, unique_filename)
-            file.save(input_path)
-            hide_overlay(redis_client, client_id)
-            print(f"File received and saved: {input_path}")
-            update_progressbar(redis_client, client_id, "2")
+            # Suppression de toute entrée obsolète
+            clear_cache(file_hash)
 
-            # Nettoyage de l'audio
-            emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...")
-            cleaned_path = os.path.join(AUDIO_FOLDER, unique_filename + "_cleaned.mp3")
-            audio_cleaner.remove_silence(input_path, cleaned_path, client_id)
-            print(f"Audio nettoyé et enregistré : {cleaned_path}")
-            update_progressbar(redis_client, client_id, "30")
+            # Traitement normal du fichier
 
-            # Conversion et découpage audio
-            emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...")
-            duration, segments = split_audio(cleaned_path, unique_filename)
-            nb_segments = len(segments)
-            emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...", f"{nb_segments} segments créés")
-            update_progressbar(redis_client, client_id, "40")
-
-            # Transcription des segments
-            if DEBUG or NO_OPENAI:
-                # Use transcription from fake folder in debug mode
-                fake_transcription_path = os.path.join(FAKE_FOLDER, "transcription.txt")
-                with open(fake_transcription_path, "r") as fake_file:
-                    transcription = fake_file.read()
-                print(f"Mode debug: transcription chargée depuis {fake_transcription_path}")
-                update_progressbar(redis_client, client_id, "80")
+            if file_ext in ['.txt', '.md']:
+                # Gestion des fichier texte
+                emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier texte")
+                text_content = file.read().decode('utf-8')
+                transcription = context + "\n\n" + text_content if context else text_content
+                cost = 0.0
+                duration = 0.0
+                hide_overlay(redis_client, client_id)
+                update_progressbar(redis_client, client_id, "60")
             else:
-                transcriptions = []
-                count = 0
-                for segment in segments:
-                    count += 1
-                    progress = 40 + int(count / nb_segments * 40)
-                    emit_feedback(redis_client, client_id, f"Transcription de {len(segments)} segments audio...",
-                                  "traitement en cours... " + str(count) + "/" + str(len(segments)))
-                    transcript = transcribe_audio(segment["filepath"])
-                    transcriptions.append(transcript)
-                    update_progressbar(redis_client, client_id, str(progress))
+                # Gestion des fichiers audio
+                emit_feedback(redis_client, client_id, "Début du traitement...", "Fichier audio")
+                input_path = os.path.join(AUDIO_FOLDER, unique_filename)
+                file.save(input_path)
+                hide_overlay(redis_client, client_id)
+                print(f"File received and saved: {input_path}")
+                update_progressbar(redis_client, client_id, "2")
 
-                # Combine les transcriptions
-                transcription = " ".join(transcriptions)
-                if context:
-                    transcription = f"{context}\n\n{transcription}"
+                # Nettoyage de l'audio
+                emit_feedback(redis_client, client_id, "Nettoyage de l'audio en cours...")
+                cleaned_path = os.path.join(AUDIO_FOLDER, unique_filename + "_cleaned.mp3")
+                audio_cleaner.remove_silence(input_path, cleaned_path, client_id)
+                print(f"Audio nettoyé et enregistré : {cleaned_path}")
+                update_progressbar(redis_client, client_id, "30")
+
+                # Conversion et découpage audio
+                emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...")
+                duration, segments = split_audio(cleaned_path, unique_filename)
+                nb_segments = len(segments)
+                emit_feedback(redis_client, client_id, "Découpage de l'audio en segments...", f"{nb_segments} segments créés")
+                update_progressbar(redis_client, client_id, "40")
+
+                # Transcription des segments
+                if DEBUG or NO_OPENAI:
+                    # Use transcription from fake folder in debug mode
+                    fake_transcription_path = os.path.join(FAKE_FOLDER, "transcription.txt")
+                    with open(fake_transcription_path, "r") as fake_file:
+                        transcription = fake_file.read()
+                    print(f"Mode debug: transcription chargée depuis {fake_transcription_path}")
+                    update_progressbar(redis_client, client_id, "80")
+                else:
+                    transcriptions = []
+                    count = 0
+                    for segment in segments:
+                        count += 1
+                        progress = 40 + int(count / nb_segments * 40)
+                        emit_feedback(redis_client, client_id, f"Transcription de {len(segments)} segments audio...",
+                                      "traitement en cours... " + str(count) + "/" + str(len(segments)))
+                        transcript = transcribe_audio(segment["filepath"])
+                        transcriptions.append(transcript)
+                        update_progressbar(redis_client, client_id, str(progress))
+
+                    # Combine les transcriptions
+                    transcription = " ".join(transcriptions)
+                    if context:
+                        transcription = f"{context}\n\n{transcription}"
+
+        # Stocker la transcription dans le cache Redis
+        cache_transcription(file_hash, transcription)
 
         # Sauve la transcription vers un fichier .txt
         transcription_filename = f"{unique_filename}_transcription.txt"
@@ -165,14 +187,27 @@ def process_file():
 
         # Synthèse de la transcription
         emit_feedback(redis_client, client_id, "Synthèse en cours...")
-        if DEBUG or NO_OPENAI:
-            fake_summary_path = os.path.join(FAKE_FOLDER, "summary.md")
-            with open(fake_summary_path, "r") as fake_file:
-                summary = fake_file.read()
-            print(f"Debug mode: Summary loaded from {fake_summary_path}")
-            in_tokens, out_tokens = 0, 0  # Tokens are irrelevant in debug mode
+        # Vérifier si un résumé est déjà en cache
+        cached_summary = get_cached_summary(file_hash)
+
+        if cached_summary:
+            print(f"Résumé récupéré depuis le cache pour {file.filename} (Hash: {file_hash})")
+            summary = cached_summary
+            in_tokens, out_tokens = 0, 0  # Pas de tokens consommés si en cache
         else:
-            in_tokens, out_tokens, summary = summarize_with_meeting_synthetiser(transcription, assistant_id)
+            # Générer le résumé avec OpenAI si nécessaire
+            if DEBUG or NO_OPENAI:
+                fake_summary_path = os.path.join(FAKE_FOLDER, "summary.md")
+                with open(fake_summary_path, "r") as fake_file:
+                    summary = fake_file.read()
+                print(f"Debug mode: Summary loaded from {fake_summary_path}")
+                in_tokens, out_tokens = 0, 0  # Tokens are irrelevant in debug mode
+            else:
+                in_tokens, out_tokens, summary = summarize_with_meeting_synthetiser(transcription, assistant_id)
+
+            # Stocker le résumé dans le cache Redis
+            cache_summary(file_hash, summary)
+
         update_progressbar(redis_client, client_id, "100")
         summary_path = os.path.join(TEXT_FOLDER, summary_filename)
         with open(summary_path, "w") as f:
